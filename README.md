@@ -108,6 +108,48 @@ The `Tap` class uses the `telegram-logger.level` config value (default: `error`)
 TELEGRAM_LOG_LEVEL=error
 ```
 
+### Per-channel Overrides (thread_id and level)
+
+You can override the global `TELEGRAM_LOG_THREAD_ID` and log level on a per-channel basis. This is useful when you want different log categories to go to different topics of the same supergroup.
+
+**Through `Logger` (custom channel):**
+
+```php
+'channels' => [
+    'tg_payments' => [
+        'driver' => 'custom',
+        'via' => \DenoBY\TelegramLogger\Logger::class,
+        'level' => 'info',
+        'thread_id' => env('TELEGRAM_PAYMENTS_THREAD_ID'),
+    ],
+
+    'tg_queues' => [
+        'driver' => 'custom',
+        'via' => \DenoBY\TelegramLogger\Logger::class,
+        'level' => 'warning',
+        'thread_id' => env('TELEGRAM_QUEUES_THREAD_ID'),
+    ],
+],
+```
+
+**Through `Tap` (positional arguments `thread_id,level`):**
+
+```php
+// both overridden
+'tap' => [\DenoBY\TelegramLogger\Tap::class.':42,warning'],
+
+// only thread_id (level falls back to global)
+'tap' => [\DenoBY\TelegramLogger\Tap::class.':42'],
+
+// only level (thread_id falls back to global)
+'tap' => [\DenoBY\TelegramLogger\Tap::class.':,warning'],
+
+// no overrides — uses global config
+'tap' => [\DenoBY\TelegramLogger\Tap::class],
+```
+
+If a channel does not set an override, the global `TELEGRAM_LOG_THREAD_ID` / `TELEGRAM_LOG_LEVEL` from `.env` is used.
+
 ### Sending Messages Directly
 
 Use the Facade to send messages:

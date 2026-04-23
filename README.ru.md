@@ -108,6 +108,48 @@ Log::channel('telegram')->error('Что-то пошло не так!');
 TELEGRAM_LOG_LEVEL=error
 ```
 
+### Переопределение thread_id и level для конкретного канала
+
+Глобальный `TELEGRAM_LOG_THREAD_ID` и уровень логирования можно переопределить на уровне конкретного канала. Удобно, когда разные категории логов нужно направлять в разные топики одной и той же супергруппы.
+
+**Через `Logger` (custom-канал):**
+
+```php
+'channels' => [
+    'tg_payments' => [
+        'driver' => 'custom',
+        'via' => \DenoBY\TelegramLogger\Logger::class,
+        'level' => 'info',
+        'thread_id' => env('TELEGRAM_PAYMENTS_THREAD_ID'),
+    ],
+
+    'tg_queues' => [
+        'driver' => 'custom',
+        'via' => \DenoBY\TelegramLogger\Logger::class,
+        'level' => 'warning',
+        'thread_id' => env('TELEGRAM_QUEUES_THREAD_ID'),
+    ],
+],
+```
+
+**Через `Tap` (позиционные аргументы `thread_id,level`):**
+
+```php
+// оба переопределены
+'tap' => [\DenoBY\TelegramLogger\Tap::class.':42,warning'],
+
+// только thread_id (level — глобальный)
+'tap' => [\DenoBY\TelegramLogger\Tap::class.':42'],
+
+// только level (thread_id — глобальный)
+'tap' => [\DenoBY\TelegramLogger\Tap::class.':,warning'],
+
+// без переопределений — используется глобальный конфиг
+'tap' => [\DenoBY\TelegramLogger\Tap::class],
+```
+
+Если в канале не заданы `thread_id` / `level`, используются глобальные значения из `.env` (`TELEGRAM_LOG_THREAD_ID` / `TELEGRAM_LOG_LEVEL`).
+
 ### Прямая отправка сообщений
 
 Используйте фасад для отправки сообщений:

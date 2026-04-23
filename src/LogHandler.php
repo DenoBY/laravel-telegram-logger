@@ -20,12 +20,15 @@ class LogHandler extends AbstractProcessingHandler
 
     private int $maxMessageLength;
 
-    public function __construct(int|string|Level $logLevel, bool $bubble = true)
+    private ?int $threadId;
+
+    public function __construct(int|string|Level $logLevel, ?int $threadId = null, bool $bubble = true)
     {
         $monologLevel = Logger::toMonologLevel($logLevel);
 
         parent::__construct($monologLevel, $bubble);
 
+        $this->threadId = $threadId ?? config('telegram-logger.thread_id');
         $this->applicationUrl = config('telegram-logger.app_url', config('app.url', ''));
         $this->applicationEnvironment = config('telegram-logger.environment', config('app.env', 'production'));
         $this->ignoreExceptions = config('telegram-logger.ignore_exceptions', []);
@@ -46,7 +49,7 @@ class LogHandler extends AbstractProcessingHandler
             ->sendMessageToChat(
                 message: new Message($this->formatLogText($record)),
                 chatId: $chatId,
-                threadId: config('telegram-logger.thread_id'),
+                threadId: $this->threadId,
                 parseMode: 'Markdown',
             );
     }
