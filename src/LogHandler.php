@@ -22,7 +22,7 @@ class LogHandler extends AbstractProcessingHandler
 
     private ?int $threadId;
 
-    public function __construct(int|string|Level $logLevel, ?int $threadId = null, bool $bubble = true)
+    public function __construct(int|string|Level $logLevel, bool $bubble = true, ?int $threadId = null)
     {
         $monologLevel = Logger::toMonologLevel($logLevel);
 
