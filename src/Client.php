@@ -10,7 +10,7 @@ class Client
     private string $baseUrl;
 
     public function __construct(
-        private readonly string $token,
+        private readonly ?string $token,
     ) {
         $this->baseUrl = 'https://api.telegram.org/bot'.$this->token.'/';
     }

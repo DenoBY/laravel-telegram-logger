@@ -35,14 +35,17 @@ class LogHandler extends AbstractProcessingHandler
 
     protected function write(LogRecord $record): void
     {
-        if ($this->ignoreExceptions($record)) {
+        $token = config('telegram-logger.token');
+        $chatId = config('telegram-logger.chat_id');
+
+        if (! $token || ! $chatId || $this->ignoreExceptions($record)) {
             return;
         }
 
-        (new Client(config('telegram-logger.token')))
+        (new Client($token))
             ->sendMessageToChat(
                 message: new Message($this->formatLogText($record)),
-                chatId: config('telegram-logger.chat_id'),
+                chatId: $chatId,
                 threadId: config('telegram-logger.thread_id'),
                 parseMode: 'Markdown',
             );
