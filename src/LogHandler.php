@@ -7,6 +7,7 @@ use Monolog\Handler\AbstractProcessingHandler;
 use Monolog\Level;
 use Monolog\Logger;
 use Monolog\LogRecord;
+use Throwable;
 
 class LogHandler extends AbstractProcessingHandler
 {
@@ -103,8 +104,9 @@ class LogHandler extends AbstractProcessingHandler
         $context = null;
 
         if (! empty($record->context)) {
-            if (isset($record->context['exception'])) {
-                $exception = $record->context['exception'];
+            $exception = $this->resolveException($record);
+
+            if ($exception !== null) {
                 $context = $exception->getTraceAsString();
                 $file = $exception->getFile().':'.$exception->getLine();
             } else {
@@ -117,19 +119,30 @@ class LogHandler extends AbstractProcessingHandler
 
     private function ignoreExceptions(LogRecord $record): bool
     {
-        if (empty($record->context) || ! isset($record->context['exception'])) {
+        $exception = $this->resolveException($record);
+
+        if ($exception === null) {
             return false;
         }
 
-        return in_array(get_class($record->context['exception']), $this->ignoreExceptions);
+        return in_array($exception::class, $this->ignoreExceptions);
     }
 
     private function ignoreExceptionCallStack(LogRecord $record): bool
     {
-        if (empty($record->context) || ! isset($record->context['exception'])) {
+        $exception = $this->resolveException($record);
+
+        if ($exception === null) {
             return false;
         }
 
-        return in_array(get_class($record->context['exception']), $this->ignoreExceptionCallStacks);
+        return in_array($exception::class, $this->ignoreExceptionCallStacks);
+    }
+
+    private function resolveException(LogRecord $record): ?Throwable
+    {
+        $exception = $record->context['exception'] ?? null;
+
+        return $exception instanceof Throwable ? $exception : null;
     }
 }
