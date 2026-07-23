@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Facade;
  * @method static array sendMessageToChat(Message $message, string $chatId, ?int $threadId = null, mixed $replyMessageId = null, mixed $messageId = null, string $parseMode = 'HTML')
  * @method static array sendDocument(string $filePath, string $chatId, ?string $caption = null, ?int $threadId = null)
  *
- * @see \DenoBY\TelegramLogger\Client
+ * @see Client
  */
 class Telegram extends Facade
 {
