@@ -2,7 +2,7 @@
 
 [English](README.md) · [Русский](README.ru.md)
 
-[![release](https://img.shields.io/github/v/tag/DenoBY/laravel-telegram-logger?label=release)](https://github.com/DenoBY/laravel-telegram-logger/tags)
+[![release](https://img.shields.io/packagist/v/denoby/laravel-telegram-logger?label=release)](https://packagist.org/packages/denoby/laravel-telegram-logger)
 [![license](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 ![php](https://img.shields.io/badge/php-%E2%89%A5%208.1-blue)
 ![laravel](https://img.shields.io/badge/laravel-10%20%C2%B7%2011%20%C2%B7%2012%20%C2%B7%2013-lightgrey)
@@ -17,11 +17,6 @@ Laravel пакет для отправки логов и сообщений пр
 - Настраиваемая фильтрация исключений
 - Информация о пользователе в сообщениях
 - Markdown форматирование
-
-## Требования
-
-- PHP 8.1+
-- Laravel 10.x, 11.x или 12.x
 
 ## Установка
 
