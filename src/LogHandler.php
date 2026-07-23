@@ -7,6 +7,8 @@ use Monolog\Handler\AbstractProcessingHandler;
 use Monolog\Level;
 use Monolog\Logger;
 use Monolog\LogRecord;
+use ReflectionClass;
+use ReflectionException;
 use Throwable;
 
 class LogHandler extends AbstractProcessingHandler
@@ -108,13 +110,46 @@ class LogHandler extends AbstractProcessingHandler
 
             if ($exception !== null) {
                 $context = $exception->getTraceAsString();
-                $file = $exception->getFile().':'.$exception->getLine();
+                $file = $this->resolveOrigin($exception);
             } else {
                 $context = json_encode($record['context']);
             }
         }
 
         return [$file, $context];
+    }
+
+    /**
+     * The throw site: for named constructors getFile() returns the exception's
+     * own file rather than where it was thrown.
+     */
+    protected function resolveOrigin(Throwable $exception): string
+    {
+        $exceptionFile = $exception->getFile();
+        $fallback = $exceptionFile.':'.$exception->getLine();
+
+        if (! $this->isThrownFromOwnDeclaration($exception)) {
+            return $fallback;
+        }
+
+        foreach ($exception->getTrace() as $frame) {
+            if (isset($frame['file'], $frame['line']) && $frame['file'] !== $exceptionFile) {
+                return $frame['file'].':'.$frame['line'];
+            }
+        }
+
+        return $fallback;
+    }
+
+    private function isThrownFromOwnDeclaration(Throwable $exception): bool
+    {
+        try {
+            $declarationFile = (new ReflectionClass($exception))->getFileName();
+        } catch (ReflectionException) {
+            return false;
+        }
+
+        return $declarationFile !== false && $declarationFile === $exception->getFile();
     }
 
     private function ignoreExceptions(LogRecord $record): bool
